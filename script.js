@@ -1,6 +1,8 @@
+
+/*=========     function GameBoard()     ==========*/
 //initialize gameboard, setting 3x3 grid and each box to value 0
 //and handles gameboard mechanics
-function Gameboard() {
+function GameBoard() {
     const board = [];
     const rows = 3;
     const columns = 3;
@@ -11,65 +13,67 @@ function Gameboard() {
             board[i].push(Square());
         }
     }
-
-    const getBoard = () => board;
-
+    
+    //display board to console
     const printBoard = () => {
-        boardWithSquareValues = board.map((row) => row.map((square) => square.getValue()));
+        boardWithSquareValues = board.map((row) => row.map((square) => square));
         console.log(boardWithSquareValues);
-    };
+    }
 
     const addValueToSquare = (row, column, player) => {
         const selectedSquare = board[row][column];
-        if (selectedSquare.getValue !== 0) {
-            throw new Error("Invalid Space. Pick an empty square.");
+        if (selectedSquare.getValue() != "") {
+            throw new Error("Invalid Space. Pick an Empty Square.");
         }
         selectedSquare.addToken(player);
     }
+
+    const getBoard = () => board;
 
     const resetSquares = () => {
         board.forEach((row) => row.forEach((square) => square.reset()));
     }
 
     return {
-        getBoard,
         printBoard,
         addValueToSquare,
+        getBoard,
         resetSquares
-    };
+    }
 }
 
-//create each square space of the 3x3 grid
-//and handles square mechanics
 function Square() {
-    let value = 0;
+    let value = "";
 
     const addToken = (player) => {
+        console.log(`Square() with ${player.token} and value = "${value}"`);
         value = player.token;
-    };
+        console.log(`Square() now value = ${value}`);
+    }
 
     const getValue = () => value;
 
     const reset = () => {
-        value = 0;
+        value = "";
     }
 
     return {
         addToken,
         getValue,
         reset
-    };
+    }
 }
 
-function Player() {
+function Players() {
+
     const players = [
         {
             name: "Player O",
-            token: 'O'
+            token: "O"
         },
         {
             name: "Player X",
-            token: 'X'
+            token: "X"
         }
     ];
     return {
@@ -78,45 +82,34 @@ function Player() {
 }
 
 function GameController() {
-    const board = Gameboard();
-    const players = Player();
+    const board = GameBoard();
+    const players = Players();
 
     let activePlayer = players.players[0];
 
     const switchActivePlayer = () => {
-        activePlayer = activePlayer === players[0] ? players[1] : players[0];  
+        activePlayer = activePlayer === players.players[0] ? players.players[1] : players.players[0];
     };
 
     const getActivePlayer = () => activePlayer();
 
-    const printNewRound = () => {
-        board.printBoard();
-        console.log(`${getActivePlayer.name}'s turn.`);
-    }
-
-    const playRound = (row, column, activePlayer) => {
+    const playTurn = (row, column) => {
         board.addValueToSquare(row, column, activePlayer);
-
         if(checkWin()) {
-            console.log("Winning Condition");
-        }else if (checkSquares()) {
-            console.log("Draw Condition");
-        }
-
-        if(checkWin() || checkSquares()) {
-            console.log("End Game.")
+            console.log(`${activePlayer.name} Wins!`);
             board.printBoard();
-            activePlayer = players.players[0];
-            return;
+        } else if (checkSquares()) {
+            console.log("Draw.");
+            board.printBoard();
         } else {
             switchActivePlayer();
-            printNewRound();
+            board.printBoard();
         }
     }
 
     //checks for empty squares
     const checkSquares = () => {
-        const gameboard = board.getBoard;
+        const gameboard = board.getBoard();
         const isFull = gameboard.every(row => row.every(square => square.getValue() != 0));
         return isFull;
     }
@@ -124,117 +117,127 @@ function GameController() {
     //checks for any met winning conditions
     const checkWin = () => {
         const gameboard = board.getBoard();
-
         //Check for Row Win
         for (row = 0; row < 3; row++) {
-            if  (gameboard[row][0].getValue === gameboard[row][1].getValue && 
-                gameboard[row][0].getValue === gameboard[row][2].getValue && 
-                gameboard[row][0].getValue !== 0) {
-                return true;
+            if (gameboard[row][0].getValue() === gameboard[row][1].getValue() && 
+                gameboard[row][0].getValue() === gameboard[row][2].getValue() && 
+                gameboard[row][0].getValue() !== "") {
+                    console.log("Row Win");
+                    return true;
             }
         }
 
         //Check for Column Win
         for (column = 0; column < 3; column++) {
-            if  (gameboard[0][column].getValue === gameboard[1][column].getValue &&
-                gameboard[0][column].getValue === gameboard[2][column].getValue &&
-                gameboard[0][column].getValue !== 0) {
-                return true;
+            if (gameboard[0][column].getValue() === gameboard[1][column].getValue() &&
+                gameboard[0][column].getValue() === gameboard[2][column].getValue() &&
+                gameboard[0][column].getValue() !== "") {
+                    console.log("Column Win");
+                    return true;
             }
         }
         //Check For Diagonal Win
         const diagonalA = [[0, 0], [1, 1], [2, 2]]; //diagonal from top left to bottom right
-        const diabonalB = [[2, 0], [1, 1], [0, 2]]; //diagonal from bottom left to top right
-
-        if (diagonalA[0] == diagonalA[1] && diagonalA[0] == diagonalA[2] && diagonalA[0] !== 0) {
+        const diagonalB = [[2, 0], [1, 1], [0, 2]]; //diagonal from bottom left to top right
+    
+        if (gameboard[0][0].getValue() == gameboard[1][1].getValue() && 
+            gameboard[0][0].getValue() == gameboard[2][2].getValue() && 
+            gameboard[0][0].getValue() !== "") {
+            console.log("Diagonal A Win");
             return true;
-        }
-
-        if (diagonalB[0] === diagonalB[1] && diagonalB[0] === diagonalB[2] && diagonalB[0] !=0 ) {
-            return true;
-        }
+        } else if  (gameboard[2][0].getValue() == gameboard[1][1].getValue() && 
+                    gameboard[2][0].getValue() == gameboard[0][2].getValue() && 
+                    gameboard[2][0].getValue() !== "") 
+                    {
+                        console.log("Diagonal B Win");
+                        return true;
+                    }
+        return false;
     }
 
-    const resetGame =() => {
-        gameboard.resetSquares();
+    const resetGame = () => {
+        board.resetSquares();
         activePlayer = players.players[0];
     }
 
     return {
+        switchActivePlayer,
         getActivePlayer,
-        playRound,
-        checkSquares,
+        playTurn,
         checkWin,
-        resetGame,
+        checkSquares,
+        getBoard: board.getBoard,
+        resetGame
     }
 }
 
-function GameDisplay() {
+function DisplayController() {
     const gameController = GameController();
-    const squares = document.querySelectorAll(".square");
 
-    const updateDisplay = () => {
-        const board = gameController.getBoard;
+    function clickHandler(e) {
+        if (gameController.checkWin() || gameController.checkSquares()) {
+            throw new Error("Game is Over.");
+        }
+
+        const row = e.target.dataset.row;
+        const column = e.target.dataset.column;
+        gameController.playTurn(row, column);
+        screenUpdate();
+    }
+    function resetHandler() {
+        gameController.resetGame();
+        screenUpdate();
+        console.log("Game Reset.");
+    }
+
+    const screenUpdate = () => {
+        const board = gameController.getBoard();
         const boardDiv = document.querySelector(".gameboard");
-        const info = document.querySelector(".info");
+        const infoDiv = document.querySelector(".info");
+        const scoreDiv = document.querySelector(".scoreBoard");
 
         boardDiv.innerText = "";
+        infoDiv.innerText = "";
 
         for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
+            for(let j = 0; j < 3; j++) {
                 const square = document.createElement("button");
                 square.classList.add("square");
                 boardDiv.appendChild(square);
                 square.dataset.row = i;
                 square.dataset.column = j;
                 square.textContent = board[i][j].getValue();
-                square.addEventListener("click", playEvent);
+                square.addEventListener("click", clickHandler);
             }
         }
 
-        renderGame();
-    }
+        const gameButton = document.createElement("button");
+        gameButton.classList.add("game-btn");
+        infoDiv.appendChild(gameButton);
+        gameButton.textContent = "Reset";
+        gameButton.addEventListener("click", resetHandler);
 
-    const squareClickHandler = (event) => {
-        const square = event.target;
-        const row = square.dataset.row;
-        const column = square.dataset.column;
-        console.log(gameController.getActivePlayer());
-        addTokenToSquare(row, column, gameController.getActivePlayer());
-        gameController.playRound(row, column);
-        updatePlayerTurn(gameController.getActivePlayer());
-        displayGameWinner();
-    }
-
-    const addTokenToSquare = (row, column, activePlayer) => {
-        const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-
-        if (square.textContent == '') {
-            square.textContent = player.token;
+        if (gameController.checkWin() || gameController.checkSquares()) {
+            gameButton.textContent = "Play Again?";
+            gameButton.addEventListener("click", resetHandler);
         }
     }
-    const renderGame = () => {
-        squares.forEach(square => {
-            square.addEventListener('click', squareClickHandler);
-        });
-    }
-    
-    const resetGame = () => {
-        console.log("Game Reset");
-        gameControllerC.resetGame();
-        squares.forEach(square => {
-            square.textContent = '';
-        });
-        //set up player turns
-    }
 
-    
+    screenUpdate();
+
     return {
-        updateDisplay,
-        squareClickHandler,
-        addTokenToSquare,
-        renderGame
-    };
+        screenUpdate
+    }
 }
 
-GameDisplay();
+const display = DisplayController();
+
+/* let game = GameController();
+
+game.playTurn(0, 0);
+game.playTurn(1, 0);
+game.playTurn(0, 1);
+game.playTurn(1, 2);
+game.playTurn(0, 2);
+game.playTurn(0, 0);
+*/
