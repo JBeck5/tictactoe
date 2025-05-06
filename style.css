@@ -1,0 +1,50 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    flex-direction: column;
+}
+
+.gameboard {
+    width: 450px;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    border: 1px solid black;
+}
+
+.square {
+    background-color: #f8f8f8;
+    border: 1px solid #333;
+    display: flex;
+    width: 150px;
+    height: 150px;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 6rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.game-btn {
+    background-color: antiquewhite;
+    border: 1px solid black;
+    width: 185px;
+    height: 75px;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    margin-top: 25px;
+    font-size: 2rem;
+    cursor: pointer;
+}
